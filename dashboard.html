@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — CodeMaster Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #111827 50%, #1a1f2e 100%);
+      color: #e0e7ff;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    #canvas-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.8;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 10;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      padding: 18px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+      z-index: 1000;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #c7d2fe;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #e0e7ff;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
+    .secondary {
+      background: transparent;
+      border: 1px solid #6366f1;
+      color: #c7d2fe;
+    }
+
+    .logout-btn {
+      background: rgba(255, 59, 48, 0.2);
+      border: 1px solid rgba(255, 59, 48, 0.5);
+      color: #ff6b6b;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 59, 48, 0.3);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header-section {
+      margin-bottom: 60px;
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .greeting {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(99, 102, 241, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .greeting h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .greeting-message {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin-top: 8px;
+    }
+
+    .progress-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-5px);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.95rem;
+      opacity: 0.7;
+      margin-top: 8px;
+    }
+
+    .courses-section {
+      margin-top: 60px;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .course-card {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      animation: slideUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .course-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .course-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .course-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .course-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    .course-card:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+    }
+
+    .course-header {
+      height: 120px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .course-content {
+      padding: 25px;
+    }
+
+    .course-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #e0e7ff;
+    }
+
+    .course-description {
+      font-size: 0.95rem;
+      opacity: 0.7;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #c7d2fe;
+    }
+
+    .course-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .course-progress {
+      margin-bottom: 15px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.5s ease;
+      border-radius: 10px;
+    }
+
+    .course-button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .course-button:hover {
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+      transform: scale(1.02);
+    }
+
+    .course-button:active {
+      transform: scale(0.98);
+    }
+
+    footer {
+      background: rgba(15, 23, 42, 0.9);
+      border-top: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 40px 8%;
+      text-align: center;
+      margin-top: 80px;
+    }
+
+    footer h3 {
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    footer p {
+      opacity: 0.7;
+      margin: 5px 0;
+    }
+
+    @media (max-width: 900px) {
+      .container { padding: 24px 16px 40px; }
+      .progress-overview { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 12px 5%;
+      }
+
+      .navbar-left {
+        width: 100%;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .greeting {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .greeting h1 {
+        font-size: 1.5rem;
+      }
+
+      .courses-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-overview {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas-bg"></canvas>
+
+  <div class="content-wrapper">
+    <nav class="navbar">
+      <div class="navbar-left">
+        <a href="CodeMaster.html" class="logo">CodeMaster Academy</a>
+        <ul class="nav-links">
+          <li><a href="#courses">Courses</a></li>
+          <li><a href="#progress">Progress</a></li>
+        </ul>
+      </div>
+      <div class="nav-actions">
+        <button class="btn logout-btn" onclick="handleLogout()">Logout</button>
+      </div>
+    </nav>
+
+    <main class="container">
+      <section class="header-section">
+        <div class="greeting">
+          <div>
+            <h1>Welcome back, <span id="userName">Learner</span>! 👋</h1>
+            <p class="greeting-message">Keep learning and growing. You're doing amazing!</p>
+          </div>
+        </div>
+
+        <div class="progress-overview" id="progress">
+          <div class="stat-card">
+            <div class="stat-number" id="coursesEnrolled">0</div>
+            <div class="stat-label">Courses Enrolled</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="hoursLearned">0</div>
+            <div class="stat-label">Hours Learned</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="skillsGained">0</div>
+            <div class="stat-label">Skills Gained</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="averageProgress">0%</div>
+            <div class="stat-label">Average Progress</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="courses-section" id="courses">
+        <h2 class="section-title">📚 Available Courses</h2>
+        <div class="courses-grid">
+          <!-- Courses will be populated here by JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <h3>CodeMaster Academy</h3>
+      <p>Learn. Build. Grow.</p>
+      <p>© 2026 CodeMaster Academy - All Rights Reserved</p>
+    </footer>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const particleCount = 50;
+
+
+
+
+
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.opacity = Math.random() * 0.5 + 0.2;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+      }
+
+      draw() {
+        ctx.fillStyle = `rgba(99, 102, 241, ${this.opacity})`;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(99, 102, 241, 0.5)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      particles.length = 0;
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animateBackground() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 100) {
+            ctx.strokeStyle = `rgba(99, 102, 241, ${0.1 * (1 - distance / 100)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+
+      requestAnimationFrame(animateBackground);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    initParticles();
+    animateBackground();
+
+    const courses = [
+      {
+        key: 'python',
+        title: 'Python Masterclass',
+        description: 'Master Python from basics to advanced. Build real applications.',
+        icon: '🐍',
+        lessons: 24,
+        duration: 32,
+        skills: 15,
+        progress: 45
+      },
+      {
+        key: 'mern',
+        title: 'MERN Stack',
+        description: 'Build full-stack web apps. MongoDB, Express, React, Node.js.',
+        icon: '⚛️',
+        lessons: 32,
+        duration: 48,
+        skills: 20,
+        progress: 20
+      },
+      {
+        key: 'dsa',
+        title: 'Data Structures & Algorithms',
+        description: 'Master DSA for technical interviews. Ace coding problems.',
+        icon: '📊',
+        lessons: 40,
+        duration: 56,
+        skills: 25,
+        progress: 0
+      },
+      {
+        key: 'system',
+        title: 'System Design',
+        description: 'Design scalable systems. Netflix, Uber, Twitter architecture.',
+        icon: '🏗️',
+        lessons: 28,
+        duration: 40,
+        skills: 18,
+        progress: 0
+      }
+    ];
+
+    const Store = {
+      async get(key) {
+        try {
+          if (window.storage) {
+            const res = await window.storage.get(key, false);
+            return res ? JSON.parse(res.value) : null;
+          }
+          const v = localStorage.getItem(key);
+          return v ? JSON.parse(v) : null;
+        } catch (e) {
+          return null;
+        }
+      },
+      async set(key, value) {
+        try {
+          if (window.storage) {
+            await window.storage.set(key, JSON.stringify(value), false);
+          } else {
+            localStorage.setItem(key, JSON.stringify(value));
+          }
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    };
+
+    async function guardAndGreet() {
+      const session = await Store.get('session');
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      document.getElementById('userName').textContent = session.email.split('@')[0] || 'Learner';
+    }
+
+    async function handleLogout() {
+      await Store.set('session', null);
+      window.location.href = 'index.html';
+    }
+
+    function openCourse(courseKey) {
+      window.location.href = `learning.html?course=${courseKey}`;
+    }
+
+    function renderCourses() {
+      const grid = document.querySelector('.courses-grid');
+      let totalLessons = 0;
+      let totalDuration = 0;
+      let totalSkills = 0;
+      let totalProgress = 0;
+
+      grid.innerHTML = courses.map(course => {
+        totalLessons += course.lessons;
+        totalDuration += course.duration;
+        totalSkills += course.skills;
+        totalProgress += course.progress;
+
+        return `
+          <div class="course-card">
+            <div class="course-header">${course.icon}</div>
+            <div class="course-content">
+              <h3 class="course-title">${course.title}</h3>
+              <p class="course-description">${course.description}</p>
+
+              <div class="course-meta">
+                <span>📖 ${course.lessons} lessons</span>
+                <span>⏱️ ${course.duration}h</span>
+                <span>🎯 ${course.skills} skills</span>
+              </div>
+
+              <div class="course-progress">
+                <div class="progress-header">
+                  <span>Progress</span>
+                  <span>${course.progress}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${course.progress}%"></div>
+                </div>
+              </div>
+
+              <button class="course-button" onclick="openCourse('${course.key}')">
+                ${course.progress > 0 ? 'Continue Learning' : 'Start Learning'} →
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('coursesEnrolled').textContent = courses.length;
+      document.getElementById('hoursLearned').textContent = totalDuration;
+      document.getElementById('skillsGained').textContent = totalSkills;
+      document.getElementById('averageProgress').textContent = Math.round(totalProgress / courses.length) + '%';
+    }
+
+    guardAndGreet();
+    renderCourses();
+  </script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>

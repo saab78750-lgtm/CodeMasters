@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login / Sign Up — CodeMaster Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; width: 100%; font-family: 'Inter', sans-serif; background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 20%), radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.14), transparent 22%), #070a1d; color: #f8fbff; }
+    body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .auth-shell { width: min(520px, 100%); background: rgba(8,12,32,0.96); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 24px 80px rgba(0,0,0,0.24); overflow: hidden; }
+    .auth-header { display: flex; justify-content: space-between; align-items: center; padding: 28px 32px 18px; }
+    .brand { font-size: 1.35rem; font-weight: 800; text-decoration: none; color: #f8fbff; }
+    .brand span { color: #38bdf8; }
+    .tab-group { display: flex; gap: 8px; border-radius: 14px; background: rgba(255,255,255,0.06); padding: 6px; }
+    .tab-btn { background: transparent; border: none; color: #cbd5e1; padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: background 0.2s ease, color 0.2s ease; }
+    .tab-btn.active { background: linear-gradient(135deg, #7c3aed, #38bdf8); color: #ffffff; }
+    .auth-panel { padding: 0 32px 32px; }
+    .auth-panel h1 { font-size: clamp(1.8rem, 2.3vw, 2.4rem); margin-bottom: 10px; }
+    .auth-panel p { color: #a7b6d8; line-height: 1.8; margin-bottom: 22px; }
+    .auth-form { display: grid; gap: 16px; }
+    .auth-form label { color: #a7b6d8; font-size: 0.95rem; }
+    .auth-form input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #f8fbff; outline: none; }
+    .auth-form input::placeholder { color: rgba(255,255,255,0.45); }
+    .error-text { color: #fb7185; min-height: 20px; font-size: 0.95rem; }
+    .btn { border: none; border-radius: 999px; padding: 14px 20px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease, background-color 0.2s ease; }
+    .btn.primary { background: linear-gradient(135deg, #7c3aed, #38bdf8); color: #fff; box-shadow: 0 18px 40px rgba(124,58,237,0.25); }
+    .btn.secondary { background: rgba(255,255,255,0.08); color: #f8fbff; border: 1px solid rgba(255,255,255,0.12); }
+    .form-note { color: #a7b6d8; font-size: 0.9rem; text-align: center; margin-top: 10px; }
+    @media (max-width: 520px) { .auth-header, .auth-panel { padding-left: 20px; padding-right: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-header">
+      <a href="index.html" class="brand">CodeMaster <span>Academy</span></a>
+      <div class="tab-group">
+        <button class="tab-btn active" id="loginTab" type="button" onclick="switchAuthMode('login')">Login</button>
+        <button class="tab-btn" id="signupTab" type="button" onclick="switchAuthMode('signup')">Sign Up</button>
+      </div>
+    </div>
+    <div class="auth-panel">
+      <h1 id="authTitle">Sign in to continue</h1>
+      <p id="authSubtitle">Access courses, track progress, and join the CodeMaster community.</p>
+      <form class="auth-form" id="authForm" onsubmit="handleAuthSubmit(event)">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" placeholder="you@example.com" required>
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" placeholder="Password" required>
+        <div id="confirmPasswordGroup" style="display:none;">
+          <label for="authConfirmPassword">Confirm Password</label>
+          <input id="authConfirmPassword" type="password" placeholder="Confirm password">
+        </div>
+        <p class="error-text" id="authError"></p>
+        <button class="btn primary" id="authSubmitBtn" type="submit">Login</button>
+      </form>
+      <p class="form-note">Your session is stored locally for this demo. No real account is created.</p>
+      <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center;">
+        <button class="btn secondary" type="button" onclick="window.location.href='index.html'">Back to Home</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    let currentAuthMode = 'login';
+    const authError = document.getElementById('authError');
+    const authTitle = document.getElementById('authTitle');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const loginTab = document.getElementById('loginTab');
+    const signupTab = document.getElementById('signupTab');
+    const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+
+    function switchAuthMode(mode) {
+      currentAuthMode = mode;
+      loginTab.classList.toggle('active', mode === 'login');
+      signupTab.classList.toggle('active', mode === 'signup');
+      authTitle.textContent = mode === 'login' ? 'Sign in to continue' : 'Create your account';
+      authSubmitBtn.textContent = mode === 'login' ? 'Login' : 'Sign Up';
+      confirmPasswordGroup.style.display = mode === 'signup' ? 'block' : 'none';
+      authError.textContent = '';
+    }
+
+    function handleAuthSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const confirmPassword = document.getElementById('authConfirmPassword').value;
+      if (!email || !password) {
+        authError.textContent = 'Please enter email and password.';
+        return;
+      }
+      if (currentAuthMode === 'signup') {
+        if (!confirmPassword) {
+          authError.textContent = 'Please confirm your password.';
+          return;
+        }
+        if (password !== confirmPassword) {
+          authError.textContent = 'Passwords do not match.';
+          return;
+        }
+      }
+      const sessionData = JSON.stringify({ email });
+      localStorage.setItem('session', sessionData);
+      localStorage.setItem('cm_session', sessionData);
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>

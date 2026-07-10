@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeMaster Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a1d;
+      --card: rgba(255,255,255,0.08);
+      --panel: rgba(10, 14, 32, 0.95);
+      --border: rgba(255,255,255,0.12);
+      --text: #f8fbff;
+      --muted: #a7b6d8;
+      --primary: #7c3aed;
+      --secondary: #38bdf8;
+      --shadow: 0 32px 90px rgba(0,0,0,0.24);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; width: 100%; scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 24%),
+                  radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.14), transparent 22%),
+                  var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .page { position: relative; z-index: 1; }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      background: rgba(6, 10, 26, 0.85);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .brand span { color: var(--secondary); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: color 0.25s ease;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .action-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 0 20px 45px rgba(124, 58, 237, 0.28);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .hero {
+      min-height: calc(100vh - 86px);
+      display: flex;
+      align-items: center;
+      padding: 90px 20px 60px;
+    }
+
+    .hero-grid {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2.4rem, 5vw, 4.6rem);
+      line-height: 0.98;
+      margin-bottom: 24px;
+      max-width: 730px;
+      background: linear-gradient(90deg, #f8fbff, #c7d2fe);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--muted);
+      max-width: 680px;
+      margin-bottom: 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .hero-card {
+      background: rgba(8, 12, 32, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .hero-card h3 {
+      margin-bottom: 12px;
+      font-size: 1.15rem;
+    }
+
+    .hero-card p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 26px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .hero-stat {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .hero-stat h4 {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .hero-stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .section {
+      padding: 70px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      margin-bottom: 24px;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover { transform: translateY(-6px); }
+
+    .card h3 { margin-bottom: 12px; }
+
+    .card p { color: var(--muted); line-height: 1.7; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--secondary);
+    }
+
+    .stat-card p { color: var(--muted); margin: 0; }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .testimonial-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 24px;
+      min-height: 170px;
+    }
+
+    .testimonial-card h3 { margin-bottom: 10px; }
+
+    .testimonial-card p { color: var(--muted); line-height: 1.8; }
+
+    footer {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(7, 11, 24, 0.95);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-title { font-size: 1rem; margin-bottom: 8px; color: var(--text); }
+
+    .footer-text { font-size: 0.95rem; margin-top: 8px; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 18, 0.85);
+      padding: 18px;
+      z-index: 30;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-panel {
+      width: min(460px, 100%);
+      background: rgba(9, 14, 38, 0.98);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 16px; }
+
+    .modal-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.05); border-radius: 14px; padding: 6px; }
+
+    .tab-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    .modal-title { font-size: 1.3rem; font-weight: 700; }
+
+    .modal-close { background: transparent; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+
+    .modal-form { display: grid; gap: 14px; }
+
+    .modal-form label { color: var(--muted); font-size: 0.9rem; }
+
+    .modal-form input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      outline: none;
+    }
+
+    .modal-form input::placeholder { color: rgba(255,255,255,0.5); }
+
+    .error-text { color: #fb7185; font-size: 0.9rem; min-height: 18px; }
+
+    .form-note { color: var(--muted); font-size: 0.9rem; text-align: center; margin-top: 8px; }
+
+    .mobile-nav { display: none; }
+
+    @media (max-width: 1024px) {
+      .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .testimonial-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-stats { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 800px) {
+      .hero { padding: 70px 18px 44px; }
+      .hero-grid { gap: 24px; }
+      .hero-card { padding: 26px; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; }
+      .section { padding: 60px 18px; }
+      .cards-grid, .testimonial-grid, .stat-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .navbar { padding: 14px 16px; }
+      .nav-links { display: none; }
+      .menu-toggle { display: inline-flex; }
+      .navbar { gap: 12px; }
+      .hero { padding: 72px 16px 34px; }
+      .hero-copy h1 { font-size: 2.2rem; }
+      .hero-copy p { font-size: 0.98rem; }
+      .hero-card { padding: 24px; }
+      .section { padding: 50px 16px; }
+      .footer { padding: 32px 16px; }
+      .nav-links.mobile-open { display: flex; flex-direction: column; width: 100%; gap: 14px; margin-top: 12px; }
+      .nav-links.mobile-open a { color: var(--text); }
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .hero { padding: 64px 14px 30px; }
+      .hero-copy h1 { font-size: 1.85rem; }
+      .hero-copy p { font-size: 0.95rem; }
+      .btn { width: 100%; }
+      .action-group { flex-direction: column; width: 100%; }
+      .action-group .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="page">
+    <header class="navbar">
+      <a href="index.html" class="brand">CodeMaster <span>Academy</span></a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
+      <nav class="nav-links" id="navLinks">
+        <a href="#features">Features</a>
+        <a href="#courses">Courses</a>
+        <a href="#stats">Stats</a>
+        <a href="#projects">Projects</a>
+      </nav>
+      <div class="action-group">
+        <button class="btn secondary" type="button" onclick="window.location.href='auth.html'">Login</button>
+        <button class="btn primary" type="button" onclick="handleStartLearning()">Start Learning</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h1>Become an industry-ready developer with CodeMaster Academy</h1>
+            <p>Learn programming, web development, DSA, system design and real engineering with project-based training, mentor support, and modern career-ready pathways.</p>
+            <div class="hero-actions">
+              <button class="btn primary" type="button" onclick="handleStartLearning()">Start Learning</button>
+              <button class="btn secondary" type="button" onclick="document.getElementById('courses').scrollIntoView({ behavior: 'smooth' })">Explore Courses</button>
+              <button class="btn secondary" type="button" onclick="openAuthModal()">Login</button>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <h3>Featured Campus</h3>
+            <p>Accelerate your learning with guided project roadmaps, live course experience, and a community of thousands of engineers.</p>
+            <div class="hero-stats">
+              <div class="hero-stat"><h4>4.9</h4><span>Course Rating</span></div>
+              <div class="hero-stat"><h4>15K</h4><span>Students Enrolled</span></div>
+              <div class="hero-stat"><h4>100+</h4><span>Live Projects</span></div>
+              <div class="hero-stat"><h4>24/7</h4><span>Mentor Support</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <h2 class="section-title">Why learners choose CodeMaster</h2>
+        <div class="cards-grid">
+          <article class="card"><h3>Structured pathways</h3><p>Follow a guided learning path that builds your skills step by step from beginner to advanced.</p></article>
+          <article class="card"><h3>Project-driven learning</h3><p>Build real apps while you learn so your skills are ready for practical work.</p></article>
+          <article class="card"><h3>Modern interface</h3><p>Enjoy a smooth, responsive experience on phones, tablets, and desktops.</p></article>
+          <article class="card"><h3>Expert-backed content</h3><p>Learn from a curriculum designed for real courses, interviews, and job-ready skills.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="courses">
+        <h2 class="section-title">Popular courses</h2>
+        <div class="cards-grid">
+          <article class="card"><h3>Python Masterclass</h3><p>Master Python and build intelligent applications with confidence.</p></article>
+          <article class="card"><h3>MERN Stack</h3><p>Create full-stack apps using MongoDB, Express, React, and Node.js.</p></article>
+          <article class="card"><h3>Data Structures</h3><p>Prepare for interviews by solving problems with efficient solutions.</p></article>
+          <article class="card"><h3>System Design</h3><p>Learn scalable architecture, performance thinking, and production-ready design.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="stats">
+        <h2 class="section-title">Platform statistics</h2>
+        <div class="stat-grid">
+          <article class="stat-card"><h3>100+</h3><p>Courses</p></article>
+          <article class="stat-card"><h3>500+</h3><p>Projects</p></article>
+          <article class="stat-card"><h3>10K+</h3><p>Students</p></article>
+          <article class="stat-card"><h3>95%</h3><p>Success Rate</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="projects">
+        <h2 class="section-title">Featured projects</h2>
+        <div class="testimonial-grid">
+          <article class="testimonial-card"><h3>Weather App</h3><p>Build a responsive weather dashboard with live data integration.</p></article>
+          <article class="testimonial-card"><h3>E-commerce Store</h3><p>Create a modern storefront with product lists, cart features, and checkout flow.</p></article>
+          <article class="testimonial-card"><h3>Chat App</h3><p>Learn real-time messaging and interactive UI design for mobile users.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p class="footer-title">CodeMaster Academy</p>
+      <p class="footer-text">A fully responsive learning experience built for mobile and desktop screens.</p>
+      <p class="footer-text">© 2026 CodeMaster Academy</p>
+    </footer>
+  </div>
+
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div class="modal-tabs">
+          <button type="button" class="tab-btn active" id="loginTab" onclick="switchAuthMode('login')">Login</button>
+          <button type="button" class="tab-btn" id="signupTab" onclick="switchAuthMode('signup')">Sign Up</button>
+        </div>
+        <button class="modal-close" type="button" onclick="closeAuthModal()">×</button>
+      </div>
+      <h2 class="modal-title" style="margin-bottom: 16px;">Sign in to continue</h2>
+      <form class="modal-form" id="authForm" onsubmit="handleAuthSubmit(event)">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" placeholder="you@example.com" required>
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" placeholder="Password" required>
+        <div id="confirmPasswordGroup" style="display:none;">
+          <label for="authConfirmPassword">Confirm Password</label>
+          <input id="authConfirmPassword" type="password" placeholder="Confirm password">
+        </div>
+        <p class="error-text" id="authError"></p>
+        <button class="btn primary" type="submit" id="authSubmitBtn">Login</button>
+      </form>
+      <p class="form-note">This site stores the session locally in your browser for demo purposes.</p>
+    </div>
+  </div>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    const authModal = document.getElementById('authModal');
+    const loginError = document.getElementById('loginError');
+
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('mobile-open');
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 760) {
+        navLinks.classList.remove('mobile-open');
+      }
+    });
+
+    let currentAuthMode = 'login';
+    const authError = document.getElementById('authError');
+    const authTitle = document.querySelector('.modal-title');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const loginTab = document.getElementById('loginTab');
+    const signupTab = document.getElementById('signupTab');
+    const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+
+    function openAuthModal() {
+      authModal.classList.add('active');
+      authError.textContent = '';
+      switchAuthMode('login');
+    }
+
+    function closeAuthModal() {
+      authModal.classList.remove('active');
+    }
+
+    function switchAuthMode(mode) {
+      currentAuthMode = mode;
+      loginTab.classList.toggle('active', mode === 'login');
+      signupTab.classList.toggle('active', mode === 'signup');
+      authTitle.textContent = mode === 'login' ? 'Sign in to continue' : 'Create your account';
+      authSubmitBtn.textContent = mode === 'login' ? 'Login' : 'Sign Up';
+      confirmPasswordGroup.style.display = mode === 'signup' ? 'block' : 'none';
+      authError.textContent = '';
+    }
+
+    function handleStartLearning() {
+      const session = localStorage.getItem('session') || localStorage.getItem('cm_session');
+      if (session) {
+        window.location.href = 'dashboard.html';
+      } else {
+        window.location.href = 'auth.html';
+      }
+    }
+
+    function handleAuthSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const confirmPassword = document.getElementById('authConfirmPassword').value;
+
+      if (!email || !password) {
+        authError.textContent = 'Please enter email and password.';
+        return;
+      }
+
+      if (currentAuthMode === 'signup') {
+        if (!confirmPassword) {
+          authError.textContent = 'Please confirm your password.';
+          return;
+        }
+        if (password !== confirmPassword) {
+          authError.textContent = 'Passwords do not match.';
+          return;
+        }
+      }
+
+      const sessionData = JSON.stringify({ email });
+      localStorage.setItem('session', sessionData);
+      localStorage.setItem('cm_session', sessionData);
+      window.location.href = 'dashboard.html';
+    }
+
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+
+
+
+
+
+    function createParticle() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2.2 + 0.8,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.5 + 0.2
+      };
+    }
+
+    function initParticles() {
+      resizeCanvas();
+      particles = Array.from({ length: Math.max(40, Math.floor(canvas.width / 18)) }, createParticle);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.y > canvas.height) p.y = 0;
+        if (p.y < 0) p.y = canvas.height;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      initParticles();
+    });
+
+    initParticles();
+    draw();
+  </script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>
